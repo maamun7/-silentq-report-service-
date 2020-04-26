@@ -7,9 +7,9 @@ const { isEmpty } = use('App/Helpers')
 
 class UserConsumer {
 
-	clientId = 'my-app';
+	clientId = 'userClient';
 	topic = 'userCreate';
-	groupId = 'topic-group';
+	groupId = 'userGroup';
 	broker = '';
 	kafka = null;
 
@@ -42,6 +42,7 @@ class UserConsumer {
 
 	async processMessage(msg) {
 		const payload = JSON.parse(msg.value)
+		console.log('Payload :', payload);
 		const user = await User.find(payload.id)
 
 		if (isEmpty(user)) {

@@ -1,8 +1,10 @@
 'use strict'
 
 const { Command } = require('@adonisjs/ace')
-//const { consumeEvents } = use('App/Consumers')
 const UserConsumer = use('App/Consumers/UserConsumer')
+const EventConsumer = use('App/Consumers/EventConsumer')
+const AudienceConsumer = use('App/Consumers/AudienceConsumer')
+const QuestionConsumer = use('App/Consumers/QuestionConsumer')
 
 class StartConsumer extends Command {
 
@@ -16,6 +18,9 @@ class StartConsumer extends Command {
 
 	async handle (args, options) {
 		new UserConsumer();
+		new EventConsumer();
+		new AudienceConsumer();
+		new QuestionConsumer();
 	}
 }
 

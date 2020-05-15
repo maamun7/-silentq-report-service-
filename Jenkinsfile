@@ -3,6 +3,8 @@ pipeline {
 		BUILDHOST = '134.209.103.38' 
 		SSHCMD = "ssh -o StrictHostKeyChecking=no jenkins@${env.BUILDHOST}"
 		registry = "maamun7/sq-report-service"
+		docPass = ""
+		dockerImage = ''
 		PATH = "$PATH:/usr/local/bin"
 	}
   
@@ -24,6 +26,21 @@ pipeline {
 				])
 			}
 		}
+		stage('Building Image') {
+			steps {
+				sshagent(['12855018-c089-42ad-80b7-7259ae72fe37']) {
+					sh """${SSHCMD} '''
+					cd /var/silentq/report-service
+					npm install
+					docker-compose build
+					docker login --username maamun7 --password ${docPass}
+					docker tag report-service ${registry}
+					docker push ${registry}
+					'''
+				"""
+				}
+			}
+		}
 		stage('Build Ansible') {
 			steps {
 				sshagent(['12855018-c089-42ad-80b7-7259ae72fe37']) {
@@ -39,6 +56,8 @@ pipeline {
 				sshagent(['12855018-c089-42ad-80b7-7259ae72fe37']) {
 					sh """${SSHCMD} '''					
 						rm -rf /var/silentq/report-service/*
+						docker image rm maamun7/sq-report-service -f
+						docker image rm report-service -f
 					'''
 				"""
 				}

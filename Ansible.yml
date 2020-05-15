@@ -3,7 +3,43 @@
 - hosts: malserver
   become: true
   tasks:
-    - name: Copy directory to the remote server
-      copy:
-        src: /var/www/report-service
-        dest: /var/silentq/report-service
+
+    - name: Get infos on container
+      docker_container_info:
+        name: report-service
+      register: result
+
+    - name: Stop Container
+      docker_container:
+        name: report-service
+        state: stopped
+      when: result.exists
+
+    - name: Remove Container :-
+      docker_container:
+        name: report-service
+        state: absent
+      when: result.exists
+
+    - name: Remove Image :-
+      docker_image:
+        state: absent
+        name: maamun7/sq-report-service
+        tag: latest
+
+    - name: Pull Image :-
+      docker_image:
+        name: maamun7/sq-report-service:latest
+        source: pull
+
+    - name: Start Container :-
+      docker_container:
+        name: report-service
+        image: maamun7/sq-report-service
+        state: started
+        ports:
+         - "3034:3034"
+         - "9092:9092"
+        tty: true
+        detach: true
+        network_mode: host

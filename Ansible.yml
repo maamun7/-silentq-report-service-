@@ -1,0 +1,45 @@
+
+---
+- hosts: malserver
+  become: true
+  tasks:
+
+    - name: Get infos on container
+      docker_container_info:
+        name: auth-service
+      register: result
+
+    - name: Stop Container
+      docker_container:
+        name: auth-service
+        state: stopped
+      when: result.exists
+
+    - name: Remove Container :-
+      docker_container:
+        name: auth-service
+        state: absent
+      when: result.exists
+
+    - name: Remove Image :-
+      docker_image:
+        state: absent
+        name: maamun7/sq-auth-service
+        tag: latest
+
+    - name: Pull Image :-
+      docker_image:
+        name: maamun7/sq-auth-service:latest
+        source: pull
+
+    - name: Start Container :-
+      docker_container:
+        name: auth-service
+        image: maamun7/sq-auth-service
+        state: started
+        ports:
+         - "3031:3031"
+         - "9092:9092"
+        tty: true
+        detach: true
+        network_mode: host
